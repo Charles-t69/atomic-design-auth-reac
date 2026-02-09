@@ -7,33 +7,61 @@ const MOCK_USER = {
 };
 
 export const authService = {
+  // --- LOGIN ---
   login: (email: string, password: string): Promise<any> => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        // Quitamos la validación estricta para que puedas probar con lo que quieras
-        if (email && password.length >= 6) { 
+        // 1. Intentar obtener usuarios registrados en LocalStorage
+        const storedUsersRaw = localStorage.getItem('registered_users');
+        const users = storedUsersRaw ? JSON.parse(storedUsersRaw) : [];
+
+        // 2. Buscar si el usuario que intenta entrar existe
+        const foundUser = users.find((u: any) => u.email === email && u.password === password);
+
+        // 3. Credenciales estáticas de respaldo (el usuario test)
+        const isTestUser = email === 'test@ejemplo.com' && password === '123456';
+
+        if (foundUser || isTestUser) {
+          const userData = foundUser || { id: 'test', name: 'Usuario de Prueba', email };
           resolve({
             status: 200,
-            user: { id: '1', name: 'Usuario Demo', email: email },
-            token: 'fake-jwt-token'
+            user: userData,
+            token: 'fake-jwt-token-' + Math.random()
           });
         } else {
-          reject(new Error('Credenciales inválidas (la clave debe tener 6 caracteres)'));
+          reject(new Error('Credenciales inválidas. Verifica tu correo y contraseña.'));
         }
       }, 1000);
     });
   },
 
-  // Simula el registro de un nuevo usuario
+  // --- REGISTER ---
   register: (userData: any): Promise<any> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve({
-          status: 201,
-          message: 'Usuario creado exitosamente',
-          user: { ...userData, id: Date.now().toString() }
-        });
-      }, 1500);
+        try {
+          // 1. Obtener lista actual de usuarios
+          const storedUsersRaw = localStorage.getItem('registered_users');
+          const users = storedUsersRaw ? JSON.parse(storedUsersRaw) : [];
+
+          // 2. Verificar si el email ya está registrado
+          if (users.some((u: any) => u.email === userData.email)) {
+            return reject(new Error('El correo ya está registrado.'));
+          }
+
+          // 3. Agregar nuevo usuario y guardar
+          users.push(userData);
+          localStorage.setItem('registered_users', JSON.stringify(users));
+
+          resolve({
+            status: 201,
+            message: 'Registro exitoso',
+            user: userData
+          });
+        } catch (error) {
+          reject(new Error('Error al procesar el registro.'));
+        }
+      }, 1000);
     });
   }
 };

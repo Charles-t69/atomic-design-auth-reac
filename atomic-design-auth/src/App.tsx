@@ -5,23 +5,28 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { StaticPage } from './pages/StaticPage';
 
-// Componente para proteger rutas
+// --- ---
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth();
-  // Si no está logueado, lo manda al login
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
+
+const PublicRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Navigate to="/home" /> : children;
+};
+// ------------------------------
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Rutas Públicas */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          {/* Rutas que chequean si ya esta logueado */}
+          <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
-          {/* Ruta Protegida (Home) */}
+          {/* Ruta que chequea el permiso para entrar */}
           <Route 
             path="/home" 
             element={
@@ -31,7 +36,8 @@ function App() {
             } 
           />
 
-          {/* Redirección por defecto */}
+          {/* Redirección automática al entrar a la web */}
+          <Route path="/" element={<Navigate to="/home" />} />
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </BrowserRouter>
