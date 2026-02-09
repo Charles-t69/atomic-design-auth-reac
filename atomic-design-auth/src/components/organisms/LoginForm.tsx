@@ -1,40 +1,42 @@
 import { useState } from 'react';
-// Nota: importar moléculas 
-// import { FormField } from '../molecules/FormField'; 
+import { useAuth } from '../../hooks/useAuth'; // Importamos el hook
+import { authService } from '../../services/authService'; // Importamos el servicio
 
 export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  
+  const { login } = useAuth(); // Obtenemos la función login del contexto
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Validación básica
-    if (!email.includes('@')) {
-      setErrors({ ...errors, email: 'Email no válido' });
-      return;
+    setError('');
+    setLoading(true);
+
+    try {
+      // Llamamos al servicio (la simulación de backend)
+      const response = await authService.login(email, password);
+      // Si todo sale bien, guardamos al usuario en el estado global
+      login(response.user);
+      alert('¡Bienvenido!');
+    } catch (err: any) {
+      // Manejamos el error si las credenciales son incorrectas
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    console.log('Login intent con:', { email, password });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="login-form">
-      <h2>Iniciar Sesión</h2>
-      {/* Aquí usarías tus moléculas en lugar de inputs puros */}
-      <input 
-        type="email" 
-        value={email} 
-        onChange={(e) => setEmail(e.target.value)} 
-        placeholder="Tu email"
-      />
-      <input 
-        type="password" 
-        value={password} 
-        onChange={(e) => setPassword(e.target.value)} 
-        placeholder="Tu contraseña"
-      />
-      <button type="submit">Entrar</button>
-      {errors.email && <p>{errors.email}</p>}
+    <form onSubmit={handleSubmit}>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
+      <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
+      <button type="submit" disabled={loading}>
+        {loading ? 'Cargando...' : 'Iniciar Sesión'}
+      </button>
     </form>
   );
 };
