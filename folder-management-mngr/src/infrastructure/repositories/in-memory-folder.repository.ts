@@ -1,3 +1,4 @@
+// src/infrastructure/repositories/in-memory-folder.repository.ts
 import { Folder } from '../../domain/entities/folder.entity';
 import { FolderRepository } from '../../domain/repositories/folder.repository';
 

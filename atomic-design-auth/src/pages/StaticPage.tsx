@@ -1,7 +1,7 @@
 // src/pages/StaticPage.tsx
 import { useEffect, useState } from 'react';
 import { MainLayout } from '../components/templates/MainLayout';
-import { fetchFolders } from '../../services/folderService';
+import { fetchFolders } from '../services/folderService';
 
 // Definimos la interfaz para TypeScript según el Dominio del Backend
 interface Folder {
@@ -17,11 +17,11 @@ export const StaticPage = () => {
   // Hook para alimentar el frontend desde el backend manager
   useEffect(() => {
     fetchFolders()
-      .then((data) => {
+      .then((data: Folder[]) => {
         setFolders(data);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         console.error("Error al consumir el API Manager:", err);
         setLoading(false);
       });
