@@ -1,0 +1,17 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Folder Management Manager API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/folders": {
+      "get": {
+        "summary": "Obtiene la lista de carpetas",
+        "responses": {
+          "200": { "description": "Lista de carpetas devuelta correctamente" }
+        }
+      }
+    }
+  }
+}
